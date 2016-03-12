@@ -20,6 +20,5 @@ Advanced Automation Framework for Java Selenium WebDriver Automation Tests
 
 ### Changes Log
 * Support for Multi-Threads
-* Support for Multi-Browsers Runs
-  
-[Jean-francois Nepton](http://jfbuilds.com)
+* Support for Multi-Browsers Runs (Work in Development)
+
