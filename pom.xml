@@ -1,13 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<groupId>com.sqa.jf.auto</groupId>
-	<artifactId>advanced-auto-project</artifactId>
+	<groupId>com.sqa.kv.auto</groupId>
+	<artifactId>advanced-selenium</artifactId>
 	<version>1.0-SNAPSHOT</version>
 	<modelVersion>4.0.0</modelVersion>
 
-	<name>Advanced Automation Project</name>
+	<name>Advanced Selenium</name>
 	<description>Advanced Project Structure for Selenium WebDriver Automation Tests</description>
-	<url>http://jfbuilds.com</url>
+	<url>http://kvbuilds.com</url>
 
 	<properties>
 		<!-- Encodings -->
