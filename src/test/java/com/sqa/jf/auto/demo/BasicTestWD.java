@@ -4,17 +4,16 @@ import org.openqa.selenium.*;
 import org.testng.annotations.*;
 
 import com.sqa.jf.auto.*;
-import com.sqa.jf.auto.config.*;
 
 public class BasicTestWD extends DriverFactory {
 
 	@Test
-	public void googleCheeseExample() throws Exception {
+	public void testCheese() throws Exception {
 		exampleGoogleTest("Cheese");
 	}
 
 	@Test
-	public void googleMilkExample() throws Exception {
+	public void testMilk() throws Exception {
 		exampleGoogleTest("Milk");
 	}
 
@@ -28,4 +27,12 @@ public class BasicTestWD extends DriverFactory {
 		searchField.submit();
 		Thread.sleep(5000);
 	}
+
+	// @DataProvider
+	// public Object[][] items() {
+	// Object[][] myData = new Object[][] { { "Cheese" }, { "Milk" }, { "Fruit"
+	// }, { "Chocolcate" }, { "Wine" },
+	// { "Champagne" } };
+	// return myData;
+	// }
 }

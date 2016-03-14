@@ -25,12 +25,12 @@ import org.testng.annotations.*;
  */
 public class DriverFactory {
 
-	private static List<WebDriverThread> webDriverThreadPool =
-			Collections.synchronizedList(new ArrayList<WebDriverThread>());
+	private static List<WebDriverThread> webDriverThreadPool = Collections
+			.synchronizedList(new ArrayList<WebDriverThread>());
 
 	private static ThreadLocal<WebDriverThread> driverThread;
 
-	@AfterMethod
+	// @AfterMethod
 	public static void clearCookies() throws Exception {
 		getDriver().manage().deleteAllCookies();
 	}

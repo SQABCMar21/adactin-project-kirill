@@ -49,13 +49,14 @@ public enum DriverType implements DriverSetup {
 			DesiredCapabilities capabilities = DesiredCapabilities.chrome();
 			capabilities.setCapability("chrome.switches", Arrays.asList("--no-default-browser-check"));
 			HashMap<String, String> chromePreferences = new HashMap<String, String>();
-			chromePreferences.put("preofile.password_manager_enabled", "false");
+			chromePreferences.put("profile.password_manager_enabled", "false");
 			capabilities.setCapability("chrome.prefs", chromePreferences);
 			return capabilities;
 		}
 
 		@Override
 		public WebDriver getWebDriverObject(DesiredCapabilities capabilities) {
+			System.setProperty("webdriver.chrome.driver", "drivers/chromedriver.exe");
 			return new ChromeDriver(getDesiredCapabilities());
 		}
 	},
