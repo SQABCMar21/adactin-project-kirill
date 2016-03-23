@@ -1,6 +1,6 @@
-# Advanced Automation Project
+# Adactin website testing 
 
-Advanced Automation Framework for Java Selenium WebDriver Automation Tests
+Create a test suite for Adactin website
 
 * Java
 * Selenium WebDriver
