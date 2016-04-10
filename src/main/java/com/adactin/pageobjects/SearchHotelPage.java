@@ -17,7 +17,7 @@ public class SearchHotelPage
 	private WebDriver driver;
 	private Select selector;
 	private boolean isError;
-	private String error = "";
+	private String error;
 
 	// "Hello <username>!" greeting text locator
 	@FindBy(how = How.ID, using = "username_show")
@@ -28,7 +28,7 @@ public class SearchHotelPage
 	private WebElement location;
 
 	// Hotel name locator
-	@FindBy(how = How.ID, using = "Hotels")
+	@FindBy(how = How.ID, using = "hotels")
 	private WebElement hotels;
 
 	// Hotel room type locator
@@ -89,10 +89,11 @@ public class SearchHotelPage
 		driver.get("http://adactin.com/HotelApp/SearchHotel.php");
 	}
 
-	public void adults(String num)
+	public SearchHotelPage adults(String num)
 	{
 		this.selector = new Select(this.adultsPerRoom);
 		this.selector.selectByVisibleText(num);
+		return this;
 	}
 
 	// method to verify the entered check in and check out dates
@@ -104,21 +105,19 @@ public class SearchHotelPage
 		this.checkOutDate.sendKeys(checkOut);
 
 		// Assign date format matching with job search format
-		SimpleDateFormat df = new SimpleDateFormat("dd/mm/yyyy");
+		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
 
-		// check if the date values (ie. year, month and day) are within
+		// check if the date values (ie. day, month and year) are within
 		// a valid range
 		df.setLenient(false);
 
 		// get check in date as a Date object
 		Date inDate = df.parse(this.checkInDate.getAttribute("value").toString());
-
 		// get check out date as a Date object
 		Date outDate = df.parse(this.checkOutDate.getAttribute("value").toString());
 
 		// get the difference between two dates in milliseconds
 		long diff = outDate.getTime() - inDate.getTime();
-
 		// convert it to days
 		int diffDays = (int) TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
 
@@ -127,13 +126,12 @@ public class SearchHotelPage
 		if (diffDays < 0)
 		{
 			this.isError = true;
-			return this.isError;
 		}
 		else
 		{
 			this.isError = false;
-			return this.isError;
 		}
+		return this.isError;
 	}
 
 	public SearchHotelPage children(String num)
