@@ -142,7 +142,7 @@ public class SelectHotelPage
 		else
 		{
 			System.out.println("Fail: on row " + (rnum + 1) + ", column " + k
-					+ " - Wrong Total Price (excl. GST) value. Was calculated as $ " + trueTotal + ", but found $ "
+					+ " - Wrong Total Price(excl. GST) value. Was calculated as $" + trueTotal + ", but found $"
 					+ total);
 			return false;
 		}
