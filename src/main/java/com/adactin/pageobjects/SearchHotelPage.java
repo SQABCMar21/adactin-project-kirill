@@ -83,6 +83,10 @@ public class SearchHotelPage
 	@FindBy(how = How.ID, using = "adults_room_span")
 	private WebElement adultsError;
 
+	// logout link locator
+	@FindBy(how = How.LINK_TEXT, using = "Logout")
+	private WebElement logoutLink;
+
 	public SearchHotelPage(WebDriver driver)
 	{
 		this.driver = driver;
@@ -159,6 +163,12 @@ public class SearchHotelPage
 		this.selector = new Select(this.hotels);
 		this.selector.selectByVisibleText(name);
 		return this;
+	}
+
+	public LogoutPage logout()
+	{
+		this.logoutLink.click();
+		return PageFactory.initElements(this.driver, LogoutPage.class);
 	}
 
 	public SearchHotelPage reset()
