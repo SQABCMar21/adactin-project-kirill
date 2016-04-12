@@ -25,6 +25,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.adactin.pageobjects.LoginPage;
+import com.adactin.pageobjects.LogoutPage;
 import com.adactin.pageobjects.SearchHotelPage;
 import com.adactin.pageobjects.SelectHotelPage;
 
@@ -72,8 +73,8 @@ public class AdactinTests
 	public void compareSearchAndSelectHotelCheckInAndOutDates() throws ParseException
 	{
 		this.searchHotel = PageFactory.initElements(this.driver, SearchHotelPage.class);
-		this.searchHotel.hotelLocation("Sydney").roomType("Standard").rooms("1 - One")
-				.checkInAndOutDates("01/12/2015", "15/10/2016");
+		this.searchHotel.hotelLocation("Sydney").roomType("Standard").rooms("1 - One").checkInAndOutDates("01/12/2015",
+				"15/10/2016");
 		this.searchHotel.adults("1 - One").children("1 - One").submit();
 		this.selectHotel = new SelectHotelPage(this.driver);
 		Assert.assertEquals(this.selectHotel.hotelInfo("arrival date", "01/12/2015"), "01/12/2015");
@@ -84,8 +85,8 @@ public class AdactinTests
 	public void compareSearchAndSelectHotelLocation() throws ParseException
 	{
 		this.searchHotel = PageFactory.initElements(this.driver, SearchHotelPage.class);
-		this.searchHotel.hotelLocation("Sydney").roomType("Standard").rooms("1 - One")
-				.checkInAndOutDates("04/09/2015", "30/09/2015");
+		this.searchHotel.hotelLocation("Sydney").roomType("Standard").rooms("1 - One").checkInAndOutDates("04/09/2015",
+				"30/09/2015");
 		this.searchHotel.adults("1 - One").children("1 - One").submit();
 		this.selectHotel = new SelectHotelPage(this.driver);
 		Assert.assertEquals(this.selectHotel.hotelInfo("location", "Sydney"), "Sydney");
@@ -95,8 +96,8 @@ public class AdactinTests
 	public void compareSearchAndSelectHotelNumberOfRooms() throws ParseException
 	{
 		this.searchHotel = PageFactory.initElements(this.driver, SearchHotelPage.class);
-		this.searchHotel.hotelLocation("Sydney").roomType("Standard").rooms("1 - One")
-				.checkInAndOutDates("01/12/2015", "15/10/2016");
+		this.searchHotel.hotelLocation("Sydney").roomType("Standard").rooms("1 - One").checkInAndOutDates("01/12/2015",
+				"15/10/2016");
 		this.searchHotel.adults("1 - One").children("1 - One").submit();
 		this.selectHotel = new SelectHotelPage(this.driver);
 		Assert.assertEquals(this.selectHotel.hotelInfo("rooms", "1 Rooms"), "1 Rooms");
@@ -111,27 +112,6 @@ public class AdactinTests
 		this.searchHotel.adults("1 - One").children("1 - One").submit();
 		this.selectHotel = new SelectHotelPage(this.driver);
 		Assert.assertEquals(this.selectHotel.hotelInfo("rooms type", "Deluxe"), "Deluxe");
-	}
-
-	@BeforeMethod
-	public void loginFirst() throws Exception
-	{
-		this.profile = new FirefoxProfile();
-		// add firebug extension to firefox test browser
-		this.profile
-				.addExtension(new File(
-						"/Users/kvoitau/Dropbox/MyProjects/adactin-website/Firefox_profile/firebug@software.joehewitt.com.xpi"));
-		this.driver = new FirefoxDriver();
-		this.wait = new WebDriverWait(this.driver, 15);
-
-		this.driver.get(BASE_URL);
-		this.wait.until(ExpectedConditions.titleIs("AdactIn.com - Hotel Reservation System"));
-
-		this.username = this.props.getProperty("username");
-		this.password = this.props.getProperty("password");
-
-		this.login = new LoginPage(this.driver);
-		this.login.with(this.username, this.password);
 	}
 
 	@Test(enabled = false)
@@ -157,20 +137,49 @@ public class AdactinTests
 		{
 			System.out.println(testResult.getStatus());
 			File scrFile = ((TakesScreenshot) this.driver).getScreenshotAs(OutputType.FILE);
-			FileUtils.copyFile(scrFile, new File("FailedTestsScreenshots/" + testResult.getMethod().getMethodName()
-					+ ".png"));
+			FileUtils.copyFile(scrFile,
+					new File("FailedTestsScreenshots/" + testResult.getMethod().getMethodName() + ".png"));
 		}
 		this.driver.quit();
 	}
 
-	@Test
+	@Test(enabled = false)
 	public void verifyHotelStayTotalPrice() throws ParseException
 	{
 		this.searchHotel = PageFactory.initElements(this.driver, SearchHotelPage.class);
-		this.searchHotel.hotelLocation("Sydney").roomType("Standard").rooms("2 - Two")
-				.checkInAndOutDates("10/04/2016", "11/04/2016");
+		this.searchHotel.hotelLocation("Sydney").roomType("Standard").rooms("2 - Two").checkInAndOutDates("10/04/2016",
+				"11/04/2016");
 		this.searchHotel.adults("1 - One").submit();
 		this.selectHotel = new SelectHotelPage(this.driver);
 		Assert.assertEquals(this.selectHotel.calcStayPrice(), true);
+	}
+
+	@BeforeMethod
+	public void verifyUserlogin() throws Exception
+	{
+		this.profile = new FirefoxProfile();
+		// add firebug extension to firefox test browser
+		this.profile.addExtension(new File(
+				"/Users/kvoitau/Dropbox/MyProjects/adactin-website/Firefox_profile/firebug@software.joehewitt.com.xpi"));
+		this.driver = new FirefoxDriver();
+		this.wait = new WebDriverWait(this.driver, 15);
+
+		this.driver.get(BASE_URL);
+		this.wait.until(ExpectedConditions.titleIs("AdactIn.com - Hotel Reservation System"));
+
+		this.username = this.props.getProperty("username");
+		this.password = this.props.getProperty("password");
+
+		this.login = new LoginPage(this.driver);
+		this.login.with(this.username, this.password);
+	}
+
+	@Test
+	public void verifyUserLogout() throws Exception
+	{
+		this.searchHotel = PageFactory.initElements(this.driver, SearchHotelPage.class);
+		this.searchHotel.logout();
+		LogoutPage logout = new LogoutPage(this.driver);
+		Assert.assertEquals(logout.logoutSuccess(), "You have successfully logged out. Click here to login again");
 	}
 }
