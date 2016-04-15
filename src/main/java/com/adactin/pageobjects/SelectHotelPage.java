@@ -1,5 +1,6 @@
 package com.adactin.pageobjects;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.openqa.selenium.By;
@@ -65,13 +66,17 @@ public class SelectHotelPage
 	@FindBy(how = How.ID, using = "cancel")
 	private WebElement cancelButton;
 
+	// Select a hotel error message
+	@FindBy(how = How.ID, using = "reg_error")
+	private WebElement selectError;
+
 	public SelectHotelPage(WebDriver driver)
 	{
 		this.driver = driver;
-		driver.get("http://adactin.com/HotelApp/SelectHotel.php");
-		PageFactory.initElements(driver, this);
+		// driver.get("http://adactin.com/HotelApp/SelectHotel.php");
 	}
 
+	// html table representation of selected Hotel
 	public boolean calcStayPrice()
 	{
 		List<WebElement> rows = this.htmlTable.findElements(By.tagName("tr"));
@@ -80,37 +85,46 @@ public class SelectHotelPage
 
 		for (int rnum = 1; rnum < rows.size(); rnum++)
 		{
+			List<WebElement> roomsCol = rows.get(rnum).findElements(By.tagName("td"));
 			List<WebElement> daysCol = rows.get(rnum).findElements(By.tagName("td"));
 			List<WebElement> priceCol = rows.get(rnum).findElements(By.tagName("td"));
 			List<WebElement> totalCol = rows.get(rnum).findElements(By.tagName("td"));
+			String rVal = "";
 			String dVal = "";
 			String pVal = "";
 			String tVal = "";
 			priceResults = new boolean[rows.size() - 1];
 
-			for (int i = 6; i <= 6; i++)
+			for (int i = 3; i <= 3; i++)
 			{
-				// Store number of days value into String
-				dVal = daysCol.get(i).findElement(By.tagName("input")).getAttribute("value").toString();
+				// Store number of rooms value into String
+				rVal = roomsCol.get(i).findElement(By.tagName("input")).getAttribute("value").toString();
 				// Leave only numeric values
-				dVal = dVal.replaceAll("[^0-9]", "");
+				rVal = rVal.replaceAll("[^0-9]", "");
 
-				for (int j = 8; j <= 8; j++)
+				for (int j = 6; j <= 6; j++)
+				{
+					// Store number of days value into String
+					dVal = daysCol.get(j).findElement(By.tagName("input")).getAttribute("value").toString();
+					dVal = dVal.replaceAll("[^0-9]", "");
+				}
+
+				for (int k = 8; k <= 8; k++)
 				{
 					// Store price per night value into String
-					pVal = priceCol.get(j).findElement(By.tagName("input")).getAttribute("value").toString();
+					pVal = priceCol.get(k).findElement(By.tagName("input")).getAttribute("value").toString();
 					pVal = pVal.replaceAll("[^0-9]", "");
 				}
 
-				for (int k = 9; k <= 9; k++)
+				for (int l = 9; l <= 9; l++)
 				{
 					// Store total price(exc. GST) value into String
-					tVal = priceCol.get(k).findElement(By.tagName("input")).getAttribute("value").toString();
+					tVal = priceCol.get(l).findElement(By.tagName("input")).getAttribute("value").toString();
 					tVal = tVal.replaceAll("[^0-9]", "");
 
 					// Calculate Hotel Stay price (price per night * no. of
 					// days)and compare with Total price shown
-					priceResults[rnum - 1] = calcTrueTotalPrice(dVal, pVal, tVal, rnum, k);
+					priceResults[rnum - 1] = calcTrueTotalPrice(rVal, dVal, pVal, tVal, rnum, l);
 				}
 			}
 		}
@@ -128,12 +142,14 @@ public class SelectHotelPage
 		return isCorrectPrice;
 	}
 
-	public boolean calcTrueTotalPrice(String dVal, String pVal, String tVal, int rnum, int k)
+	// look up the match in selected hotel table
+	public boolean calcTrueTotalPrice(String rVal, String dVal, String pVal, String tVal, int rnum, int l)
 	{
+		double rooms = Double.parseDouble(rVal);
 		double days = Double.parseDouble(dVal);
 		double price = Double.parseDouble(pVal);
 		double total = Double.parseDouble(tVal);
-		double trueTotal = days * price;
+		double trueTotal = rooms * days * price;
 
 		if (trueTotal == total)
 		{
@@ -141,14 +157,13 @@ public class SelectHotelPage
 		}
 		else
 		{
-			System.out.println("Fail: on row " + (rnum + 1) + ", column " + k
+			System.out.println("Fail: on row " + (rnum + 1) + ", column " + l
 					+ " - Wrong Total Price(excl. GST) value. Was calculated as $" + trueTotal + ", but found $"
 					+ total);
 			return false;
 		}
 	}
 
-	// html table representation of selected Hotel
 	public String cellVals(int col, String val)
 	{
 		List<WebElement> rows = this.htmlTable.findElements(By.tagName("tr"));
@@ -164,8 +179,6 @@ public class SelectHotelPage
 				}
 				else
 				{
-					System.out.println("Fail: found  \"" + foundVal + "\" insted of \"" + val + "\" on row "
-							+ (rnum + 1) + ", column " + cnum);
 					val = foundVal;
 					break;
 				}
@@ -174,10 +187,45 @@ public class SelectHotelPage
 		return val;
 	}
 
-	// look up the match in selected hotel table
+	public void changeLocatorId()
+	{
+		int n = registerSelect();
+		if (n >= 1)
+		{
+			int recs = numOfSelections();
+			String c = String.valueOf(n);
+			List<WebElement> rows = this.htmlTable.findElements(By.tagName("tr"));
+			for (int rnum = 1; rnum < 1; rnum++)
+			{
+				if (n == 1 && recs == 1)
+				{
+					continue;
+				}
+				else if (n >= 1 && recs >= 2)
+				{
+					this.select = this.driver.findElement(By.id("radiobutton_" + c));
+					this.selectLocation = this.driver.findElement(By.id("radiobutton_" + c));
+					this.selectName = this.driver.findElement(By.id("radiobutton_" + c));
+					this.selectNumRooms = this.driver.findElement(By.id("radiobutton_" + c));
+					this.selectRoomType = this.driver.findElement(By.id("radiobutton_" + c));
+					this.selectArrivalDate = this.driver.findElement(By.id("radiobutton_" + c));
+					this.selectDepartureDate = this.driver.findElement(By.id("radiobutton_" + c));
+					this.selectNumDays = this.driver.findElement(By.id("radiobutton_" + c));
+					this.selectPricePerNight = this.driver.findElement(By.id("radiobutton_" + c));
+					this.selectTotalPrice = this.driver.findElement(By.id("radiobutton_" + c));
+				}
+			}
+		}
+	}
+
 	public String hotelInfo(String colName, String val)
 	{
-		if (colName.equalsIgnoreCase("hotel name"))
+		if (colName.equalsIgnoreCase("select"))
+		{
+			val = cellVals(0, val);
+		}
+
+		else if (colName.equalsIgnoreCase("hotel name"))
 		{
 			val = cellVals(1, val);
 		}
@@ -215,5 +263,104 @@ public class SelectHotelPage
 			val = cellVals(9, val);
 		}
 		return val;
+	}
+
+	public BookHotelPage next()
+	{
+		changeLocatorId();
+		this.continueButton.click();
+		return PageFactory.initElements(this.driver, BookHotelPage.class);
+	}
+
+	public int numOfSelections()
+	{
+		int num = 0;
+		List<WebElement> rows = this.htmlTable.findElements(By.tagName("tr"));
+		return num = rows.size() - 1; // return the number of records found
+	}
+
+	public int registerSelect()
+	{
+		int sel = 0;
+		int n = numOfSelections();
+		List<WebElement> rows = this.htmlTable.findElements(By.tagName("tr"));
+		for (int rnum = 1; rnum < rows.size(); rnum++)
+		{
+			List<WebElement> columns = rows.get(rnum).findElements(By.tagName("td"));
+			for (int cnum = 1; cnum <= 1; cnum++)
+			{
+				if (n >= 1 && !this.select.isSelected())
+				{
+					continue;
+				}
+				else if (n >= 1 && this.select.isSelected())
+				{
+					sel = rnum;
+					break;
+				}
+			}
+		}
+		return sel;
+	}
+
+	public List<String> selectedHotelVals(String... vals)
+	{
+		List<String> searchedVals = new ArrayList<String>();
+		for (int i = 0; i < vals.length; i++)
+		{
+			if (vals[i].equalsIgnoreCase("hotel name"))
+			{
+				vals[i] = hotelInfo("hotel name", "");
+				searchedVals.add(i, vals[i]);
+			}
+			else if (vals[i].equalsIgnoreCase("location"))
+			{
+				vals[i] = hotelInfo("location", "");
+				searchedVals.add(i, vals[i]);
+			}
+			else if (vals[i].equalsIgnoreCase("rooms"))
+			{
+				vals[i] = hotelInfo("rooms", "");
+				searchedVals.add(i, vals[i]);
+			}
+			else if (vals[i].equalsIgnoreCase("arrival date"))
+			{
+				vals[i] = hotelInfo("arrival date", "");
+				searchedVals.add(i, vals[i]);
+			}
+			else if (vals[i].equalsIgnoreCase("departure date"))
+			{
+				vals[i] = hotelInfo("departure date", "");
+				searchedVals.add(i, vals[i]);
+			}
+			else if (vals[i].equalsIgnoreCase("number of days"))
+			{
+				vals[i] = hotelInfo("number of days", "");
+				searchedVals.add(i, vals[i]);
+			}
+			else if (vals[i].equalsIgnoreCase("rooms type"))
+			{
+				vals[i] = hotelInfo("rooms type", "");
+				searchedVals.add(i, vals[i]);
+			}
+			else if (vals[i].equalsIgnoreCase("price per night"))
+			{
+				vals[i] = hotelInfo("price per night", "");
+				searchedVals.add(i, vals[i]);
+			}
+			else if (vals[i].equalsIgnoreCase("total price"))
+			{
+				vals[i] = hotelInfo("total price", "");
+				searchedVals.add(i, vals[i]);
+			}
+		}
+		return searchedVals;
+	}
+
+	public SelectHotelPage selectHotel()
+	{
+		changeLocatorId();
+		this.select.click();
+		return this;
 	}
 }
