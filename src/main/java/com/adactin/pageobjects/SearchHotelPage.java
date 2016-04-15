@@ -90,7 +90,6 @@ public class SearchHotelPage
 	public SearchHotelPage(WebDriver driver)
 	{
 		this.driver = driver;
-		driver.get("http://adactin.com/HotelApp/SearchHotel.php");
 	}
 
 	public SearchHotelPage adults(String num)
