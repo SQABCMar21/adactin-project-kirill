@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
@@ -24,6 +25,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.adactin.pageobjects.BookHotelPage;
 import com.adactin.pageobjects.LoginPage;
 import com.adactin.pageobjects.LogoutPage;
 import com.adactin.pageobjects.SearchHotelPage;
@@ -38,8 +40,10 @@ public class AdactinTests
 	private File file;
 	private FirefoxProfile profile;
 	private LoginPage login;
+	private LogoutPage logout;
 	private SearchHotelPage searchHotel;
 	private SelectHotelPage selectHotel;
+	private BookHotelPage bookHotel;
 	private String username;
 	private String password;
 
@@ -73,10 +77,9 @@ public class AdactinTests
 	public void compareSearchAndSelectHotelCheckInAndOutDates() throws ParseException
 	{
 		this.searchHotel = PageFactory.initElements(this.driver, SearchHotelPage.class);
-		this.searchHotel.hotelLocation("Sydney").roomType("Standard").rooms("1 - One").checkInAndOutDates("01/12/2015",
-				"15/10/2016");
-		this.searchHotel.adults("1 - One").children("1 - One").submit();
-		this.selectHotel = new SelectHotelPage(this.driver);
+		this.searchHotel.hotelLocation("Sydney").roomType("Standard").rooms("1 - One").adults("1 - One")
+				.children("1 - One").checkInAndOutDates("01/12/2015", "15/10/2016");
+		this.selectHotel = this.searchHotel.submit();
 		Assert.assertEquals(this.selectHotel.hotelInfo("arrival date", "01/12/2015"), "01/12/2015");
 		Assert.assertEquals(this.selectHotel.hotelInfo("departure date", "15/10/2016"), "15/10/2016");
 	}
@@ -85,10 +88,9 @@ public class AdactinTests
 	public void compareSearchAndSelectHotelLocation() throws ParseException
 	{
 		this.searchHotel = PageFactory.initElements(this.driver, SearchHotelPage.class);
-		this.searchHotel.hotelLocation("Sydney").roomType("Standard").rooms("1 - One").checkInAndOutDates("04/09/2015",
-				"30/09/2015");
-		this.searchHotel.adults("1 - One").children("1 - One").submit();
-		this.selectHotel = new SelectHotelPage(this.driver);
+		this.searchHotel.hotelLocation("Sydney").roomType("Standard").rooms("1 - One").adults("1 - One")
+				.children("1 - One").checkInAndOutDates("04/09/2015", "30/09/2015");
+		this.selectHotel = this.searchHotel.submit();
 		Assert.assertEquals(this.selectHotel.hotelInfo("location", "Sydney"), "Sydney");
 	}
 
@@ -96,10 +98,9 @@ public class AdactinTests
 	public void compareSearchAndSelectHotelNumberOfRooms() throws ParseException
 	{
 		this.searchHotel = PageFactory.initElements(this.driver, SearchHotelPage.class);
-		this.searchHotel.hotelLocation("Sydney").roomType("Standard").rooms("1 - One").checkInAndOutDates("01/12/2015",
-				"15/10/2016");
-		this.searchHotel.adults("1 - One").children("1 - One").submit();
-		this.selectHotel = new SelectHotelPage(this.driver);
+		this.searchHotel.hotelLocation("Sydney").roomType("Standard").rooms("1 - One").adults("1 - One")
+				.children("1 - One").checkInAndOutDates("01/12/2015", "15/10/2016");
+		this.selectHotel = this.searchHotel.submit();
 		Assert.assertEquals(this.selectHotel.hotelInfo("rooms", "1 Rooms"), "1 Rooms");
 	}
 
@@ -108,10 +109,24 @@ public class AdactinTests
 	{
 		this.searchHotel = PageFactory.initElements(this.driver, SearchHotelPage.class);
 		this.searchHotel.hotelLocation("Sydney").hotelName("Hotel Creek").roomType("Deluxe").rooms("1 - One")
-				.checkInAndOutDates("10/04/2016", "11/04/2016");
-		this.searchHotel.adults("1 - One").children("1 - One").submit();
-		this.selectHotel = new SelectHotelPage(this.driver);
+				.adults("1 - One").children("1 - One").checkInAndOutDates("10/04/2016", "11/04/2016");
+		this.selectHotel = this.searchHotel.submit();
 		Assert.assertEquals(this.selectHotel.hotelInfo("rooms type", "Deluxe"), "Deluxe");
+	}
+
+	@Test
+	public void compareSelectAndBookHotelVals() throws ParseException
+	{
+		this.searchHotel = PageFactory.initElements(this.driver, SearchHotelPage.class);
+		this.searchHotel.hotelLocation("Sydney").hotelName("Hotel Creek").roomType("Standard").rooms("2 - Two")
+				.adults("1 - One").checkInAndOutDates("12/04/2016", "13/04/2016");
+		this.selectHotel = this.searchHotel.submit();
+		this.selectHotel.selectHotel();
+		List<String> sh = this.selectHotel.selectedHotelVals("hotel name", "location", "number of days",
+				"price per night");
+		this.bookHotel = this.selectHotel.next();
+		Assert.assertEquals(this.bookHotel.bookHotelVals("hotel name", "location", "total days", "price per night"),
+				sh);
 	}
 
 	@Test(enabled = false)
@@ -144,14 +159,37 @@ public class AdactinTests
 	}
 
 	@Test(enabled = false)
+	public void verifyFinalBilledPrice() throws ParseException
+	{
+		this.searchHotel = PageFactory.initElements(this.driver, SearchHotelPage.class);
+		this.searchHotel.hotelLocation("Sydney").roomType("Standard").rooms("2 - Two").adults("1 - One")
+				.checkInAndOutDates("12/04/2016", "13/04/2016");
+		this.selectHotel = this.searchHotel.submit();
+		this.bookHotel = this.selectHotel.selectHotel().next();
+
+		Assert.assertEquals(this.bookHotel.foundBilledPrice(), this.bookHotel.calcTotalBilledPrice(), 0);
+	}
+
+	@Test(enabled = false)
 	public void verifyHotelStayTotalPrice() throws ParseException
 	{
 		this.searchHotel = PageFactory.initElements(this.driver, SearchHotelPage.class);
-		this.searchHotel.hotelLocation("Sydney").roomType("Standard").rooms("2 - Two").checkInAndOutDates("10/04/2016",
-				"11/04/2016");
-		this.searchHotel.adults("1 - One").submit();
-		this.selectHotel = new SelectHotelPage(this.driver);
+		this.searchHotel.hotelLocation("Sydney").hotelName("Hotel Creek").roomType("Standard").rooms("2 - Two")
+				.adults("1 - One").checkInAndOutDates("10/04/2016", "11/04/2016");
+		this.selectHotel = this.searchHotel.submit();
 		Assert.assertEquals(this.selectHotel.calcStayPrice(), true);
+	}
+
+	@Test(enabled = false)
+	public void verifyTotalBookPrice() throws ParseException
+	{
+		this.searchHotel = PageFactory.initElements(this.driver, SearchHotelPage.class);
+		this.searchHotel.hotelLocation("Sydney").hotelName("Hotel Creek").roomType("Standard").rooms("2 - Two")
+				.adults("1 - One").checkInAndOutDates("15/04/2016", "16/04/2016");
+		this.selectHotel = this.searchHotel.submit();
+		this.bookHotel = this.selectHotel.selectHotel().next();
+
+		Assert.assertEquals(this.bookHotel.foundBilledPrice(), this.bookHotel.calcTotalBilledPrice(), 0);
 	}
 
 	@BeforeMethod
@@ -170,16 +208,15 @@ public class AdactinTests
 		this.username = this.props.getProperty("username");
 		this.password = this.props.getProperty("password");
 
-		this.login = new LoginPage(this.driver);
+		this.login = PageFactory.initElements(this.driver, LoginPage.class);
 		this.login.with(this.username, this.password);
 	}
 
-	@Test
+	@Test(enabled = false)
 	public void verifyUserLogout() throws Exception
 	{
 		this.searchHotel = PageFactory.initElements(this.driver, SearchHotelPage.class);
-		this.searchHotel.logout();
-		LogoutPage logout = new LogoutPage(this.driver);
-		Assert.assertEquals(logout.logoutSuccess(), "You have successfully logged out. Click here to login again");
+		this.logout = this.searchHotel.logout();
+		Assert.assertEquals(this.logout.logoutSuccess(), "You have successfully logged out. Click here to login again");
 	}
 }
