@@ -22,7 +22,6 @@ public class LoginPage
 	public LoginPage(WebDriver driver) throws Exception
 	{
 		this.driver = driver;
-		PageFactory.initElements(driver, this);
 	}
 
 	public SearchHotelPage with(String username, String password)
