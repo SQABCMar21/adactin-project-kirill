@@ -7,11 +7,15 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.How;
+import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
-public class BookHotelPage extends SelectHotelPage
+public class BookHotelPage
 {
 	private WebDriver driver;
+	private WebDriverWait wait;
 	private Select selector;
 
 	// Hotel location locator
@@ -92,7 +96,14 @@ public class BookHotelPage extends SelectHotelPage
 
 	public BookHotelPage(WebDriver driver)
 	{
-		super(driver);
+		this.driver = driver;
+		this.wait = new WebDriverWait(driver, 15);
+	}
+
+	public BookHotelPage billingAddress(String address)
+	{
+		this.bookBillingAddress.sendKeys(address);
+		return this;
 	}
 
 	public List<String> bookHotelVals(String... vals)
@@ -194,6 +205,14 @@ public class BookHotelPage extends SelectHotelPage
 		return bookedVals;
 	}
 
+	public BookingConfirmPage bookNow()
+	{
+
+		this.bookBookHotel.click();
+		this.wait.until(ExpectedConditions.titleIs("AdactIn.com - Hotel Booking Confirmation"));
+		return PageFactory.initElements(this.driver, BookingConfirmPage.class);
+	}
+
 	public double calcTotalBilledPrice()
 	{
 		double guestPrice = calcTotalBookPrice() / 10;
@@ -211,10 +230,49 @@ public class BookHotelPage extends SelectHotelPage
 		return totalPrice;
 	}
 
+	public BookHotelPage ccExpMonth(String month)
+	{
+		this.selector = new Select(this.bookCCExpMonth);
+		this.selector.selectByVisibleText(month);
+		return this;
+	}
+
+	public BookHotelPage ccExpYear(String year)
+	{
+		this.selector = new Select(this.bookCCExpYear);
+		this.selector.selectByVisibleText(year);
+		return this;
+	}
+
+	public BookHotelPage ccNumber(String ccNum)
+	{
+		this.bookCCNum.sendKeys(ccNum);
+		return this;
+	}
+
+	public BookHotelPage ccType(String type)
+	{
+		this.selector = new Select(this.bookCCType);
+		this.selector.selectByVisibleText(type);
+		return this;
+	}
+
+	public BookHotelPage cvvNum(String cvv)
+	{
+		this.bookCCCVV.sendKeys(cvv);
+		return this;
+	}
+
+	public BookHotelPage firstName(String fName)
+	{
+		this.bookFirstName.sendKeys(fName);
+		return this;
+	}
+
 	public double foundBilledPrice()
 	{
-		double found = Double
-				.parseDouble(this.bookBilledPrice.getAttribute("value").toString().replaceAll("[^0-9]", ""));
+		double found = Double.parseDouble(this.bookBilledPrice.getAttribute("value").toString()
+				.replaceAll("[^0-9]", ""));
 		return found;
 	}
 
@@ -223,5 +281,11 @@ public class BookHotelPage extends SelectHotelPage
 		double found = Double
 				.parseDouble(this.bookTotalPrice.getAttribute("value").toString().replaceAll("[^0-9]", ""));
 		return found;
+	}
+
+	public BookHotelPage lastName(String lName)
+	{
+		this.bookLastName.sendKeys(lName);
+		return this;
 	}
 }
