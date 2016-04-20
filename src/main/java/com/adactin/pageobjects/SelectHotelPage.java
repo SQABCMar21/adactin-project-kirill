@@ -73,7 +73,6 @@ public class SelectHotelPage
 	public SelectHotelPage(WebDriver driver)
 	{
 		this.driver = driver;
-		// driver.get("http://adactin.com/HotelApp/SelectHotel.php");
 	}
 
 	// html table representation of selected Hotel
