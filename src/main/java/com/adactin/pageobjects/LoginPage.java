@@ -24,6 +24,18 @@ public class LoginPage
 		this.driver = driver;
 	}
 
+	public boolean correctTitle(String val)
+	{
+		if (this.driver.getTitle().equals(val))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
 	public SearchHotelPage with(String username, String password)
 	{
 		this.usernameField.sendKeys(username);
