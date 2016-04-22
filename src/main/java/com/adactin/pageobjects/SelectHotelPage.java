@@ -1,7 +1,9 @@
 package com.adactin.pageobjects;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -10,10 +12,9 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.How;
 import org.openqa.selenium.support.PageFactory;
 
-public class SelectHotelPage
+public class SelectHotelPage extends SearchHotelPage
 {
 	private WebDriver driver;
-
 	// Select Hotel HTML table locator
 	@FindBy(how = How.CSS, using = ".login>tbody>tr>td>table")
 	private WebElement htmlTable;
@@ -70,29 +71,27 @@ public class SelectHotelPage
 	@FindBy(how = How.ID, using = "reg_error")
 	private WebElement selectError;
 
-	public SelectHotelPage(WebDriver driver)
+	public SelectHotelPage(WebDriver driver) throws Exception
 	{
+		super(driver);
 		this.driver = driver;
 	}
 
 	// html table representation of selected Hotel
-	public boolean calcStayPrice()
+	public double[] calcStayPrice()
 	{
 		List<WebElement> rows = this.htmlTable.findElements(By.tagName("tr"));
-		boolean[] priceResults = new boolean[] {};
-		boolean isCorrectPrice = true;
+		double[] priceResults = new double[] {};
 
 		for (int rnum = 1; rnum < rows.size(); rnum++)
 		{
 			List<WebElement> roomsCol = rows.get(rnum).findElements(By.tagName("td"));
 			List<WebElement> daysCol = rows.get(rnum).findElements(By.tagName("td"));
 			List<WebElement> priceCol = rows.get(rnum).findElements(By.tagName("td"));
-			List<WebElement> totalCol = rows.get(rnum).findElements(By.tagName("td"));
 			String rVal = "";
 			String dVal = "";
 			String pVal = "";
-			String tVal = "";
-			priceResults = new boolean[rows.size() - 1];
+			priceResults = new double[rows.size() - 1];
 
 			for (int i = 3; i <= 3; i++)
 			{
@@ -112,55 +111,25 @@ public class SelectHotelPage
 				{
 					// Store price per night value into String
 					pVal = priceCol.get(k).findElement(By.tagName("input")).getAttribute("value").toString();
-					pVal = pVal.replaceAll("[^0-9]", "");
+					pVal = pVal.replace("AUD $ ", "");
 				}
-
-				for (int l = 9; l <= 9; l++)
-				{
-					// Store total price(exc. GST) value into String
-					tVal = priceCol.get(l).findElement(By.tagName("input")).getAttribute("value").toString();
-					tVal = tVal.replaceAll("[^0-9]", "");
-
-					// Calculate Hotel Stay price (price per night * no. of
-					// days)and compare with Total price shown
-					priceResults[rnum - 1] = calcTrueTotalPrice(rVal, dVal, pVal, tVal, rnum, l);
-				}
+				// Calculate Hotel Stay price (price per night * no. of
+				// days)and compare with Total price shown
+				priceResults[rnum - 1] = calcTrueTotalPrice(rVal, dVal, pVal, rnum);
 			}
 		}
-
-		// iterate through array of boolean values and return "false" if at
-		// least one price mismatch found
-		for (int i = 1; i < rows.size(); i++)
-		{
-			if (priceResults[i] != isCorrectPrice)
-			{
-				isCorrectPrice = false;
-				break;
-			}
-		}
-		return isCorrectPrice;
+		return priceResults;
 	}
 
 	// look up the match in selected hotel table
-	public boolean calcTrueTotalPrice(String rVal, String dVal, String pVal, String tVal, int rnum, int l)
+	public double calcTrueTotalPrice(String rVal, String dVal, String pVal, int rnum)
 	{
 		double rooms = Double.parseDouble(rVal);
 		double days = Double.parseDouble(dVal);
 		double price = Double.parseDouble(pVal);
-		double total = Double.parseDouble(tVal);
 		double trueTotal = rooms * days * price;
 
-		if (trueTotal == total)
-		{
-			return true;
-		}
-		else
-		{
-			System.out.println("Fail: on row " + (rnum + 1) + ", column " + l
-					+ " - Wrong Total Price(excl. GST) value. Was calculated as $" + trueTotal + ", but found $"
-					+ total);
-			return false;
-		}
+		return trueTotal;
 	}
 
 	public String cellVals(int col, String val)
@@ -188,33 +157,48 @@ public class SelectHotelPage
 
 	public void changeLocatorId()
 	{
-		int n = registerSelect();
-		if (n >= 1)
+		int recs = numOfSelections();
+		if (recs > 1)
 		{
-			int recs = numOfSelections();
+			int n = randNum();
 			String c = String.valueOf(n);
 			List<WebElement> rows = this.htmlTable.findElements(By.tagName("tr"));
-			for (int rnum = 1; rnum < 1; rnum++)
+			for (int rnum = 1; rnum <= 1; rnum++)
 			{
-				if (n == 1 && recs == 1)
-				{
-					continue;
-				}
-				else if (n >= 1 && recs >= 2)
-				{
-					this.select = this.driver.findElement(By.id("radiobutton_" + c));
-					this.selectLocation = this.driver.findElement(By.id("radiobutton_" + c));
-					this.selectName = this.driver.findElement(By.id("radiobutton_" + c));
-					this.selectNumRooms = this.driver.findElement(By.id("radiobutton_" + c));
-					this.selectRoomType = this.driver.findElement(By.id("radiobutton_" + c));
-					this.selectArrivalDate = this.driver.findElement(By.id("radiobutton_" + c));
-					this.selectDepartureDate = this.driver.findElement(By.id("radiobutton_" + c));
-					this.selectNumDays = this.driver.findElement(By.id("radiobutton_" + c));
-					this.selectPricePerNight = this.driver.findElement(By.id("radiobutton_" + c));
-					this.selectTotalPrice = this.driver.findElement(By.id("radiobutton_" + c));
-				}
+				this.select = this.driver.findElement(By.id("radiobutton_" + c));
+				this.selectLocation = this.driver.findElement(By.id("radiobutton_" + c));
+				this.selectName = this.driver.findElement(By.id("radiobutton_" + c));
+				this.selectNumRooms = this.driver.findElement(By.id("radiobutton_" + c));
+				this.selectRoomType = this.driver.findElement(By.id("radiobutton_" + c));
+				this.selectArrivalDate = this.driver.findElement(By.id("radiobutton_" + c));
+				this.selectDepartureDate = this.driver.findElement(By.id("radiobutton_" + c));
+				this.selectNumDays = this.driver.findElement(By.id("radiobutton_" + c));
+				this.selectPricePerNight = this.driver.findElement(By.id("radiobutton_" + c));
+				this.selectTotalPrice = this.driver.findElement(By.id("radiobutton_" + c));
 			}
 		}
+	}
+
+	public double[] foundTotalPrice()
+	{
+		List<WebElement> rows = this.htmlTable.findElements(By.tagName("tr"));
+		double[] foundPrice = new double[] {};
+		foundPrice = new double[rows.size() - 1];
+		String tVal = "";
+		double price = 0;
+		for (int rnum = 1; rnum < rows.size(); rnum++)
+		{
+			List<WebElement> totalPriceCol = rows.get(rnum).findElements(By.tagName("td"));
+			for (int i = 9; i <= 9; i++)
+			{
+				// Store total price(exc. GST) value into String
+				tVal = totalPriceCol.get(i).findElement(By.tagName("input")).getAttribute("value").toString();
+				tVal = tVal.replace("AUD $ ", "");
+				price = Double.parseDouble(tVal);
+				foundPrice[rnum - 1] = price;
+			}
+		}
+		return foundPrice;
 	}
 
 	public String hotelInfo(String colName, String val)
@@ -230,7 +214,6 @@ public class SelectHotelPage
 		}
 		else if (colName.equalsIgnoreCase("location"))
 		{
-			// this.selectLocation.getAttribute("value").toString();
 			val = cellVals(2, val);
 		}
 		else if (colName.equalsIgnoreCase("rooms"))
@@ -266,7 +249,6 @@ public class SelectHotelPage
 
 	public BookHotelPage next()
 	{
-		changeLocatorId();
 		this.continueButton.click();
 		return PageFactory.initElements(this.driver, BookHotelPage.class);
 	}
@@ -278,31 +260,18 @@ public class SelectHotelPage
 		return num = rows.size() - 1; // return the number of records found
 	}
 
-	public int registerSelect()
+	public int randNum()
 	{
-		int sel = 0;
+		// declare random number generator
+		Random rand = new Random();
+		// generate the random number within 1 - n,
+		// where n is max number of records shown
 		int n = numOfSelections();
-		List<WebElement> rows = this.htmlTable.findElements(By.tagName("tr"));
-		for (int rnum = 1; rnum < rows.size(); rnum++)
-		{
-			List<WebElement> columns = rows.get(rnum).findElements(By.tagName("td"));
-			for (int cnum = 1; cnum <= 1; cnum++)
-			{
-				if (n >= 1 && !this.select.isSelected())
-				{
-					continue;
-				}
-				else if (n >= 1 && this.select.isSelected())
-				{
-					sel = rnum;
-					break;
-				}
-			}
-		}
-		return sel;
+		int randN = rand.nextInt((n - 1) + 1) + 1;
+		return randN;
 	}
 
-	public List<String> selectedHotelVals(String... vals)
+	public List<String> selectedHotelVals(String... vals) throws ParseException
 	{
 		List<String> searchedVals = new ArrayList<String>();
 		for (int i = 0; i < vals.length; i++)
