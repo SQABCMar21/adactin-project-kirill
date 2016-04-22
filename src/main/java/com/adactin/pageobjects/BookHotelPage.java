@@ -1,5 +1,6 @@
 package com.adactin.pageobjects;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +13,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-public class BookHotelPage
+public class BookHotelPage extends SearchHotelPage
 {
 	private WebDriver driver;
 	private WebDriverWait wait;
@@ -94,8 +95,9 @@ public class BookHotelPage
 	@FindBy(how = How.ID, using = "cancel")
 	private WebElement bookBookCancel;
 
-	public BookHotelPage(WebDriver driver)
+	public BookHotelPage(WebDriver driver) throws Exception
 	{
+		super(driver);
 		this.driver = driver;
 		this.wait = new WebDriverWait(driver, 15);
 	}
@@ -106,7 +108,7 @@ public class BookHotelPage
 		return this;
 	}
 
-	public List<String> bookHotelVals(String... vals)
+	public List<String> bookHotelVals(String... vals) throws ParseException
 	{
 		List<String> bookedVals = new ArrayList<String>();
 		for (int i = 0; i < vals.length; i++)
@@ -222,7 +224,7 @@ public class BookHotelPage
 
 	public double calcTotalBookPrice()
 	{
-		double np = Double.parseDouble(this.bookPriceNight.getAttribute("value").toString().replaceAll("[^0-9]", ""));
+		double np = Double.parseDouble(this.bookPriceNight.getAttribute("value").toString().replace("AUD $ ", ""));
 		double nr = Double
 				.parseDouble(this.bookNumberOfRooms.getAttribute("value").toString().replaceAll("[^0-9]", ""));
 		double td = Double.parseDouble(this.bookTotalDays.getAttribute("value").toString().replaceAll("[^0-9]", ""));
@@ -271,15 +273,13 @@ public class BookHotelPage
 
 	public double foundBilledPrice()
 	{
-		double found = Double.parseDouble(this.bookBilledPrice.getAttribute("value").toString()
-				.replaceAll("[^0-9]", ""));
+		double found = Double.parseDouble(this.bookBilledPrice.getAttribute("value").toString().replace("AUD $ ", ""));
 		return found;
 	}
 
 	public double foundTotalBookPrice()
 	{
-		double found = Double
-				.parseDouble(this.bookTotalPrice.getAttribute("value").toString().replaceAll("[^0-9]", ""));
+		double found = Double.parseDouble(this.bookTotalPrice.getAttribute("value").toString().replace("AUD $ ", ""));
 		return found;
 	}
 
