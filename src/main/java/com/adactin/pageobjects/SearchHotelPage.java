@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -12,7 +13,7 @@ import org.openqa.selenium.support.How;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.Select;
 
-public class SearchHotelPage
+public class SearchHotelPage extends LoginPage
 {
 	private WebDriver driver;
 	private Select selector;
@@ -87,8 +88,9 @@ public class SearchHotelPage
 	@FindBy(how = How.LINK_TEXT, using = "Logout")
 	private WebElement logoutLink;
 
-	public SearchHotelPage(WebDriver driver)
+	public SearchHotelPage(WebDriver driver) throws Exception
 	{
+		super(driver);
 		this.driver = driver;
 	}
 
@@ -142,6 +144,12 @@ public class SearchHotelPage
 		this.selector = new Select(this.children_per_room);
 		this.selector.selectByVisibleText(num);
 		return this;
+	}
+
+	public void clickLink(String text)
+	{
+		this.driver.findElement(By.linkText(text)).click();
+		this.driver.getCurrentUrl();
 	}
 
 	public String helloUser()
